@@ -152,59 +152,75 @@ class Hand(object):
 if __name__ == '__main__':
     hand = Hand()
 
-    # usage demo
+    # usage
     lines = [
-        "Now this is a story all about how",
-        "My life got flipped turned upside down",
-        "And I'd like to take a minute, just sit right there",
-        "I'll tell you how I became the prince of a town called Bel-Air",
+        "My sweet little honey bunny ",
+        "My cuuutie lil babygirl awww",
+        "kissie kissie love you honey"
     ]
     biases = [.75 for i in lines]
-    styles = [9 for i in lines]
-    stroke_colors = ['red', 'green', 'black', 'blue']
-    stroke_widths = [1, 2, 1, 2]
+    styles = [3 for i in lines]
 
     hand.write(
-        filename='img/DEMO.svg',
-        lines=lines,
-        biases=biases,
-        styles=styles,
-        stroke_colors=stroke_colors,
-        stroke_widths=stroke_widths
+            filename='img/OUTPUT.svg',
+            lines=lines,
+            biases=biases,
+            styles=styles,
     )
 
-    # demo number 1 - fixed bias, fixed style
-    lines = LYRICS.all_star.split("\n")
-    biases = [.75 for i in lines]
-    styles = [12 for i in lines]
+    # # usage demo
+    # lines = [
+    #     "Now this is a story all about how",
+    #     "My life got flipped turned upside down",
+    #     "And I'd like to take a minute, just sit right there",
+    #     "I'll tell you how I became the prince of a town called Bel-Air",
+    # ]
+    # biases = [.75 for i in lines]
+    # styles = [9 for i in lines]
+    # stroke_colors = ['red', 'green', 'black', 'blue']
+    # stroke_widths = [1, 2, 1, 2]
 
-    hand.write(
-        filename='img/BIAS-f-STYLE-f.svg',
-        lines=lines,
-        biases=biases,
-        styles=styles,
-    )
+    # hand.write(
+    #     filename='img/DEMO.svg',
+    #     lines=lines,
+    #     biases=biases,
+    #     styles=styles,
+    #     stroke_colors=stroke_colors,
+    #     stroke_widths=stroke_widths
+    # )
 
-    # demo number 2 - fixed bias, varying style
-    lines = LYRICS.all_star.split("\n")
-    biases = [.75 for i in lines]
-    styles = np.cumsum(np.array([len(i) for i in lines]) == 0).astype(int)
+    # # demo number 1 - fixed bias, fixed style
+    # lines = LYRICS.all_star.split("\n")
+    # biases = [.75 for i in lines]
+    # styles = [12 for i in lines]
 
-    hand.write(
-        filename='img/BIAS-f-STYLE-v.svg',
-        lines=lines,
-        biases=biases,
-        styles=styles,
-    )
+    # hand.write(
+    #     filename='img/BIAS-f-STYLE-f.svg',
+    #     lines=lines,
+    #     biases=biases,
+    #     styles=styles,
+    # )
 
-    # demo number 3 - varying bias, fixed style
-    lines = LYRICS.all_star.split("\n")
-    biases = .2*np.flip(np.cumsum([len(i) == 0 for i in lines]), 0)
-    styles = [7 for i in lines]
+    # # demo number 2 - fixed bias, varying style
+    # lines = LYRICS.all_star.split("\n")
+    # biases = [.75 for i in lines]
+    # styles = np.cumsum(np.array([len(i) for i in lines]) == 0).astype(int)
 
-    hand.write(
-        filename='img/BIAS-v-STYLE-f.svg',
-        lines=lines,
-        biases=biases,
-        styles=styles,
-    )
+    # hand.write(
+    #     filename='img/BIAS-f-STYLE-v.svg',
+    #     lines=lines,
+    #     biases=biases,
+    #     styles=styles,
+    # )
+
+    # # demo number 3 - varying bias, fixed style
+    # lines = LYRICS.all_star.split("\n")
+    # biases = .2*np.flip(np.cumsum([len(i) == 0 for i in lines]), 0)
+    # styles = [7 for i in lines]
+
+    # hand.write(
+    #     filename='img/BIAS-v-STYLE-f.svg',
+    #     lines=lines,
+    #     biases=biases,
+    #     styles=styles,
+    # )
