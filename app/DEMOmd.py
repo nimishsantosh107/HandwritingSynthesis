@@ -1,11 +1,13 @@
+import re
 import os
 import logging
-
 import numpy as np
 import svgwrite
-
 import drawing
-import LYRICS
+
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPDF
+from pprint import pprint
 from rnn import rnn
 
 
@@ -112,7 +114,7 @@ class Hand(object):
         stroke_widths = stroke_widths or [2]*len(lines)
 
         line_height = 60
-        view_width = 1000
+        view_width = 800
         view_height = line_height*(len(strokes) + 1)
 
         dwg = svgwrite.Drawing(filename=filename)
@@ -133,7 +135,8 @@ class Hand(object):
 
             strokes[:, 1] *= -1
             strokes[:, :2] -= strokes[:, :2].min() + initial_coord
-            strokes[:, 0] += (view_width - strokes[:, 0].max()) / 2
+            strokes[:, 0] += 0 ## LEFT
+            # (view_width - strokes[:, 0].max()) / 2 ##  CENTER
 
             prev_eos = 1.0
             p = "M{},{} ".format(0, 0)
@@ -148,80 +151,71 @@ class Hand(object):
 
         dwg.save()
 
+def preprocess_md(filename, bias, style, stroke_width):
+    with open(filename) as fp:
+        lines = fp.readlines()
+
+    headerREGEX = r'(# *)+'
+    newlineREGEX = r'(\\n+|\n+)+'
+
+    processedlines = []
+
+    # CORRECT LINE WIDTH
+    for i in range(len(lines)):
+        templine = lines[i]
+
+        if(len(templine) > 62):
+            templinearr = templine.split(' ')
+            top, newlinearr = -1, []
+
+            for word in templinearr:
+                if(((top == -1) or (len(newlinearr[top]) > 62))):
+                    newlinearr.append("")
+                    top+=1
+                    newlinearr[top] += word+' '
+                else:
+                    newlinearr[top] += word+' '
+            # newlinearr[top] = newlinearr[top].ljust(69)
+
+            for line in newlinearr:
+                processedlines.append(line)  
+        else:
+            # .ljust(69)
+            processedlines.append(templine)
+
+    # OUTPUT VARS
+    biases = [bias for i in processedlines]
+    styles = [style for i in processedlines]
+    stroke_widths = [stroke_width for i in processedlines]
+    stroke_colors = ["blue" for i in processedlines]
+
+    # REMOVE MD SPECIFIC FORMATTING
+    for i in range(len(processedlines)):
+
+        # If header, black line
+        temp = re.subn(headerREGEX,"",processedlines[i])
+        if(temp[1]>0): stroke_colors[i] = "black"
+
+        # Replace newlines
+        temp = re.subn(newlineREGEX,"",temp[0])
+
+        processedlines[i] = temp[0]
+
+    return processedlines, biases, styles, stroke_widths, stroke_colors
+
 
 if __name__ == '__main__':
     hand = Hand()
 
-    # usage
-    lines = [
-        "Hello this is a test line",
-        "this is a test line too  "
-    ]
-    biases = [.75 for i in lines]
-    styles = [3 for i in lines]
-    stroke_widths = [0.5, 0.5]
+
+    lines, biases, styles, stroke_widths, stroke_colors = preprocess_md("input/MARKDOWN1.md", lines, 0.75, 3, 0.5)
+    pprint(lines)
 
     hand.write(
-            filename='img/OUTPUT.svg',
-            lines=lines,
-            biases=biases,
-            styles=styles,
-            stroke_widths = stroke_widths
+        filename='img/MARKDOWN1.svg',
+        lines=lines,
+        biases=biases,
+        styles=styles,
+        stroke_colors=stroke_colors,
+        stroke_widths=stroke_widths
     )
-
-    # # usage demo
-    # lines = [
-    #     "Now this is a story all about how",
-    #     "My life got flipped turned upside down",
-    #     "And I'd like to take a minute, just sit right there",
-    #     "I'll tell you how I became the prince of a town called Bel-Air",
-    # ]
-    # biases = [.75 for i in lines]
-    # styles = [9 for i in lines]
-    # stroke_colors = ['red', 'green', 'black', 'blue']
-    # stroke_widths = [1, 2, 1, 2]
-
-    # hand.write(
-    #     filename='img/DEMO.svg',
-    #     lines=lines,
-    #     biases=biases,
-    #     styles=styles,
-    #     stroke_colors=stroke_colors,
-    #     stroke_widths=stroke_widths
-    # )
-
-    # # demo number 1 - fixed bias, fixed style
-    # lines = LYRICS.all_star.split("\n")
-    # biases = [.75 for i in lines]
-    # styles = [12 for i in lines]
-
-    # hand.write(
-    #     filename='img/BIAS-f-STYLE-f.svg',
-    #     lines=lines,
-    #     biases=biases,
-    #     styles=styles,
-    # )
-
-    # # demo number 2 - fixed bias, varying style
-    # lines = LYRICS.all_star.split("\n")
-    # biases = [.75 for i in lines]
-    # styles = np.cumsum(np.array([len(i) for i in lines]) == 0).astype(int)
-
-    # hand.write(
-    #     filename='img/BIAS-f-STYLE-v.svg',
-    #     lines=lines,
-    #     biases=biases,
-    #     styles=styles,
-    # )
-
-    # # demo number 3 - varying bias, fixed style
-    # lines = LYRICS.all_star.split("\n")
-    # biases = .2*np.flip(np.cumsum([len(i) == 0 for i in lines]), 0)
-    # styles = [7 for i in lines]
-
-    # hand.write(
-    #     filename='img/BIAS-v-STYLE-f.svg',
-    #     lines=lines,
-    #     biases=biases,
-    #     styles=styles,
-    # )
