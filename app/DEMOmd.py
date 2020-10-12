@@ -5,8 +5,8 @@ import numpy as np
 import svgwrite
 import drawing
 
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPDF
+# from svglib.svglib import svg2rlg
+# from reportlab.graphics import renderPDF
 from pprint import pprint
 from rnn import rnn
 
@@ -207,8 +207,7 @@ def preprocess_md(filename, bias, style, stroke_width):
 if __name__ == '__main__':
     hand = Hand()
 
-
-    lines, biases, styles, stroke_widths, stroke_colors = preprocess_md("input/MARKDOWN1.md", lines, 0.75, 3, 0.5)
+    lines, biases, styles, stroke_widths, stroke_colors = preprocess_md("input/MARKDOWN1.md", 0.75, 3, 0.5)
     pprint(lines)
 
     hand.write(
